@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <!-- Styles -->
+    <style>
+    #chartdiv {
+        width: 100%;
+        height: 500px;
+    }
+    </style>
+
+</head>
+<body>
+
+    {% include 'details/menu.html'%}
+
+         <!-- HTML -->
+    <div id="chartdiv"></div>
+    
+    <!-- Resources -->
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    
+    <!-- Chart code -->
+    <script>
+    am5.ready(function() {
+    
+    // Create root element
+    // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+    var root = am5.Root.new("chartdiv");
+    
+    
+    // Set themes
+    // https://www.amcharts.com/docs/v5/concepts/themes/
+    root.setThemes([
+      am5themes_Animated.new(root)
+    ]);
+    
+    
+    // Create chart
+    // https://www.amcharts.com/docs/v5/charts/percent-charts/sliced-chart/
+    var chart = root.container.children.push(am5percent.SlicedChart.new(root, {
+      layout: root.verticalLayout
+    }));
+    
+    
+    // Create series
+    // https://www.amcharts.com/docs/v5/charts/percent-charts/sliced-chart/#Series
+    var series = chart.series.push(am5percent.PyramidSeries.new(root, {
+      orientation: "vertical",
+      valueField: "value",
+      categoryField: "category"
+    }));
+    
+    
+    // Set data
+    // https://www.amcharts.com/docs/v5/charts/percent-charts/sliced-chart/#Setting_data
+    series.data.setAll([
+      { value: 10, category: "One" },
+      { value: 9, category: "Two" },
+      { value: 6, category: "Three" },
+      { value: 5, category: "Four" },
+      { value: 4, category: "Five" },
+      { value: 3, category: "Six" },
+      { value: 3, category: "Seven" }
+    ].reverse());
+    
+    
+    // Play initial series animation
+    // https://www.amcharts.com/docs/v5/concepts/animations/#Animation_of_series
+    series.appear();
+    
+    
+    // Create legend
+    // https://www.amcharts.com/docs/v5/charts/percent-charts/legend-percent-series/
+    var legend = chart.children.push(am5.Legend.new(root, {
+      centerX: am5.percent(50),
+      x: am5.percent(50),
+      marginTop: 15,
+      marginBottom: 15
+    }));
+    
+    legend.data.setAll(am5.array.copy(series.dataItems).reverse());
+    
+    
+    // Make stuff animate on load
+    // https://www.amcharts.com/docs/v5/concepts/animations/
+    chart.appear(1000, 100);
+    
+    }); // end am5.ready()
+    </script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>  
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <!-- Styles -->
+    <style>
+    #chartdiv {
+      width: 100%;
+      height: 600px;
+    }
+    </style>
+</head>
+<body>
+  
+  {% include 'details/menu.html'%}
+
+    <!-- HTML -->
+    <div id="chartdiv"></div>
+
+    <!-- Resources -->
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    
+    <!-- Chart code -->
+    <script>
+    am5.ready(function() {
+    
+    var data = [];
+    var value1 = 20;
+    var value2 = 200;
+    var value3 = 2000;
+    
+    var names = [
+      "Raina",
+      "Demarcus",
+      "Carlo",
+      "Jacinda",
+      "Richie",
+      "Antony",
+      "Amada",
+      "Idalia",
+      "Janella",
+      "Marla",
+      "Curtis",
+      "Shellie",
+      "Meggan",
+      "Nathanael",
+      "Jannette",
+      "Tyrell",
+      "Sheena",
+      "Maranda",
+      "Briana"
+    ];
+    
+    for (var i = 0; i < names.length; i++) {
+      value1 += Math.round(
+        (Math.random() < 0.5 ? 1 : -1) * Math.random() * value1 * 0.2
+      );
+      value2 += Math.round(
+        (Math.random() < 0.5 ? 1 : -1) * Math.random() * value2 * 0.2
+      );
+      value3 += Math.round(
+        (Math.random() < 0.5 ? 1 : -1) * Math.random() * value3 * 0.2
+      );
+      data.push({
+        category: names[i],
+        value1: value1,
+        value2: value2,
+        value3: value3
+      });
+    }
+    
+    // Create root element
+    // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+    var root = am5.Root.new("chartdiv");
+    
+    // Set themes
+    // https://www.amcharts.com/docs/v5/concepts/themes/
+    root.setThemes([
+      am5themes_Animated.new(root)
+    ]);
+    
+    // Create chart
+    // https://www.amcharts.com/docs/v5/charts/xy-chart/
+    var chart = root.container.children.push(
+      am5xy.XYChart.new(root, {
+        panX: false,
+        panY: true,
+        wheelX: "none",
+        wheelY: "zoomY",
+        arrangeTooltips: false,
+      pinchZoomY:true
+      })
+    );
+    
+    // make x axes stack
+    chart.bottomAxesContainer.set("layout", root.horizontalLayout);
+    
+    // Create axes
+    // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
+    var yRenderer = am5xy.AxisRendererY.new(root, {
+      minGridDistance: 25
+    });
+    
+    yRenderer.labels.template.setAll({
+      multiLocation: 0.5,
+      location: 0.5,
+      paddingRight: 15
+    });
+    
+    yRenderer.grid.template.set("location", 0.5);
+    
+    var yAxis = chart.yAxes.push(
+      am5xy.CategoryAxis.new(root, {
+        categoryField: "category",
+        tooltip: am5.Tooltip.new(root, {}),
+        renderer: yRenderer
+      })
+    );
+    
+    yAxis.data.setAll(data);
+    
+    // Add series
+    // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
+    function createSeries(field, margin, column) {
+      var xRenderer = am5xy.AxisRendererX.new(root, {
+        minGridDistance: 40
+      });
+      
+      xRenderer.labels.template.setAll({
+        rotation: -90,
+        centerY: am5.p50
+      });
+      
+      var xAxis = chart.xAxes.push(
+        am5xy.ValueAxis.new(root, {
+          renderer: xRenderer,
+          tooltip: am5.Tooltip.new(root, {
+            animationDuration: 0
+          }),
+          marginLeft: margin // this makes gap between axes
+        })
+      );
+    
+      // this hides grid between panels
+      xAxis.axisHeader.set("background", am5.Rectangle.new(root, {
+        fillOpacity: 1,
+        fill: root.interfaceColors.get("background")
+      }));
+    
+      var series;
+      if (column) {
+        series = chart.series.push(
+          am5xy.ColumnSeries.new(root, {
+            xAxis: xAxis,
+            yAxis: yAxis,
+            valueXField: field,
+            categoryYField: "category",
+            sequencedInterpolation: true,
+            tooltip: am5.Tooltip.new(root, {
+              pointerOrientation: "horizontal",
+              labelText: "{valueX}"
+            })
+          })
+        );
+      } else {
+        series = chart.series.push(
+          am5xy.LineSeries.new(root, {
+            xAxis: xAxis,
+            yAxis: yAxis,
+            valueXField: field,
+            categoryYField: "category",
+            sequencedInterpolation: true,
+            tooltip: am5.Tooltip.new(root, {
+              pointerOrientation: "horizontal",
+              labelText: "{valueX}"
+            })
+          })
+        );
+      }
+    
+      if (!column) {
+        series.bullets.push(function () {
+          return am5.Bullet.new(root, {
+            locationX: 1,
+            locationY: 0.5,
+            sprite: am5.Circle.new(root, {
+              radius: 4,
+              fill: series.get("fill")
+            })
+          });
+        });
+      }
+    
+      series.data.setAll(data);
+      series.appear();
+    
+      return series;
+    }
+    
+    createSeries("value1", 0, true);
+    createSeries("value2", 30, false);
+    createSeries("value3", 30, false);
+    
+    // Add cursor
+    // https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/
+    var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+      behavior: "none",
+      yAxis: yAxis
+    }));
+    
+    // Make stuff animate on load
+    // https://www.amcharts.com/docs/v5/concepts/animations/
+    chart.appear(1000, 100);
+    
+    }); // end am5.ready()
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>  
+     
+</body>
+</html>
